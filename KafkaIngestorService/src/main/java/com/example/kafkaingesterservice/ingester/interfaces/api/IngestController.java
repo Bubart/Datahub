@@ -1,7 +1,9 @@
 package com.example.kafkaingesterservice.ingester.interfaces.api;
 
+import com.example.kafkaingesterservice.entity.Message;
 import com.example.kafkaingesterservice.service.MessageFormatter;
 import com.example.kafkaingesterservice.service.ProducerService;
+import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -15,9 +17,6 @@ public class IngestController {
 
     private final MessageFormatter messageFormatter;
     private final ProducerService producerService;
-
-    @Value("${ingester.kafka.topic}")
-    private String topic;
 
     public IngestController(MessageFormatter messageFormatter, ProducerService producerService) {
         this.messageFormatter = messageFormatter;
@@ -35,7 +34,12 @@ public class IngestController {
     )
     public ResponseEntity<String> ingest(@RequestBody String xml) throws Exception {
         String transformed = messageFormatter.transform(xml);
-        producerService.send(topic, transformed);
+        XmlMapper xmlMapper = new XmlMapper();
+
+        Message message = xmlMapper.readValue(transformed, Message.class);
+        log.info(message.getIncomingTopic());
+        log.info("Transformed: {}", transformed);
+        producerService.send(message.getIncomingTopic(), transformed);
 
         return ResponseEntity.ok("Message formatted + ingested");
     }

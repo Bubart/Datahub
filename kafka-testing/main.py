@@ -9,23 +9,25 @@ app = FastAPI()
 
 INGESTOR_URL = "http://localhost:8081/api/v1"
 
-# Generate random partnerId, transactionId, amount
+# Generate random partnerId, transactionId, format
 def generate_random_data():
-    partner_id = str(random.randint(1000, 9999))
+    formats = ['A', 'B', 'C']
+
+    partner_id = random.randint(1,2) 
     transaction_id = ''.join(random.choices(string.ascii_uppercase + string.digits, k=10))
-    amount = round(random.uniform(10, 9999), 2)
+    format = random.choice(formats)
     timestamp = datetime.now().isoformat()
 
-    return partner_id, transaction_id, amount, timestamp
+    return partner_id, transaction_id, format, timestamp
 
 
 # Build XML from random data
-def build_xml(partner_id, transaction_id, amount, timestamp):
+def build_xml(partner_id, transaction_id, format, timestamp):
     return f"""
 <PartnerMessage>
     <PartnerId>{partner_id}</PartnerId>
     <TransactionId>{transaction_id}</TransactionId>
-    <Amount>{amount}</Amount>
+    <Format>{format}</Format>
     <Timestamp>{timestamp}</Timestamp>
 </PartnerMessage>
 """.strip()
@@ -36,8 +38,8 @@ def build_xml(partner_id, transaction_id, amount, timestamp):
 # ===================================================================
 @app.get("/generate-xml")
 def generate_xml():
-    partner_id, tx_id, amount, ts = generate_random_data()
-    xml_body = build_xml(partner_id, tx_id, amount, ts)
+    partner_id, tx_id, format, ts = generate_random_data()
+    xml_body = build_xml(partner_id, tx_id, format, ts)
     return {"generated_xml": xml_body}
 
 
@@ -50,8 +52,8 @@ def generate_and_send():
     i = 0
 
     for _ in range(500): 
-        partner_id, tx_id, amount, ts = generate_random_data()
-        xml_body = build_xml(partner_id, tx_id, amount, ts)
+        partner_id, tx_id, format, ts = generate_random_data()
+        xml_body = build_xml(partner_id, tx_id, format, ts)
 
         headers = {"Content-Type": "application/xml"}
         response = requests.post(INGESTOR_URL, data=xml_body, headers=headers)
@@ -68,8 +70,8 @@ def generate_and_send():
 
 @app.get("/send-one")
 def send_one():
-    partner_id, tx_id, amount, ts = generate_random_data()
-    xml_body = build_xml(partner_id, tx_id, amount, ts)
+    partner_id, tx_id, format, ts = generate_random_data()
+    xml_body = build_xml(partner_id, tx_id, format, ts)
 
     headers = {"Content-Type": "application/xml"}
     response = requests.post(INGESTOR_URL, data=xml_body, headers=headers)

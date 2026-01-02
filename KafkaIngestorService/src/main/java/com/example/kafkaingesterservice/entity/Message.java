@@ -1,5 +1,6 @@
 package com.example.kafkaingesterservice.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 
@@ -12,8 +13,8 @@ public class Message {
     @JacksonXmlProperty(localName = "TransactionId")
     private String transactionId;
 
-    @JacksonXmlProperty(localName = "Amount")
-    private double amount;
+    @JacksonXmlProperty(localName = "Format")
+    private String format;
 
     @JacksonXmlProperty(localName = "Timestamp")
     private String timestamp;
@@ -34,12 +35,12 @@ public class Message {
         this.transactionId = transactionId;
     }
 
-    public double getAmount() {
-        return amount;
+    public String getFormat() {
+        return format;
     }
 
-    public void setAmount(double amount) {
-        this.amount = amount;
+    public void setFormat(String format) {
+        this.format = format;
     }
 
     public String getTimestamp() {
@@ -48,5 +49,10 @@ public class Message {
 
     public void setTimestamp(String timestamp) {
         this.timestamp = timestamp;
+    }
+
+    @JsonIgnore
+    public String getIncomingTopic() {
+        return "Partner" + this.partnerId + "Incoming";
     }
 }
