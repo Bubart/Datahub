@@ -64,7 +64,7 @@ public class StreamProcessorConfig {
                 .branch((key, value) -> "B".equals(objectMapper.readValue(value, Message.class).getFormat()),
                         Branched.withConsumer((ks) -> ks.to(outgoingTopic2))
                 )
-                .noDefaultBranch();
+                .defaultBranch(Branched.withConsumer(ks -> ks.to(outgoingTopic2)));
 
         return stream;
     }

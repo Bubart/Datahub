@@ -51,7 +51,7 @@ def generate_and_send():
 
     i = 0
 
-    for _ in range(500): 
+    for _ in range(10): 
         partner_id, tx_id, format, ts = generate_random_data()
         xml_body = build_xml(partner_id, tx_id, format, ts)
 
